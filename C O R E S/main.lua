@@ -1,21 +1,18 @@
 --[[
-Trabalho 5
-Nome: declaração da função 'love.load()'
-Propriedade: carregamento da biblioteca
-Binding time: Compilação.
-Explicação: somente durante a compilação que a biblioteca chamada será imporatada e adicionada ao programa.
+First Lua game made by me (@kyros200)
+made in 2017, revised 10/26/2019
 --]]
 function love.load()
     platform={}
     player={}
 
-    --Setor Plataforma Simples
+    --Plataform Region
     platform.x = 0
     platform.y = love.graphics.getHeight() / 1.25
     platform.width=love.graphics.getWidth()
     platform.heigth=love.graphics.getHeight()
 
-    --Setor Player
+    --Player Region
     player.x = love.graphics.getWidth() / 2
     player.y = love.graphics.getHeight() / 1.25
     player.img = love.graphics.newImage('blob.png')
@@ -25,53 +22,34 @@ function love.load()
     player.jumpHeight = -500    
     player.gravity = -500        
     
-    --Setor que define os numeros que serao mostrados na tela
+    --Render Region
     tempo = 0 --Instances. Uma core nasce a cada x stances, e vai diminuindo ao longo do tempo
     pontuacao = 0 --Quantas Cores pegas em jogo
     circulos = {} --Cores em jogo
-    --[[
-        Trabalho 6
-        Array 
-        Grupo de Cores no jogo, onde o Player tem que pegá-los
-    --]]
-    --[[
-        Trabalho 7
-        Escopo: O Array 'circulos' é uma varíavel global.
-        Tempo de vida: Enquanto o programa do jogo estiver em execução (ao Reniciar, é voltado para sua forma inicial)
-        Alocação: Durante a função love.load.
-        Desalocação: Quando o programa é encerrado. 
-    --]]
+    
     quantCirc = 0
 
-    --Setor para definir a cor do fundo da tela.
-    fundo = 0 --Quanto maior o fundo, mais vermelho é o fundo
-    count = 0 --A cada 10 count, fundo aumenta o valor
+    --Background Color Region
+    fundo = 0 --how much red is the background
+    count = 0 --every 10 = more red
 
-    --Setor outros
+    --Other Region
     love.graphics.setFont(love.graphics.newFont(30)) -- Tamanho da fonte sempre sera 30
     love.graphics.setBackgroundColor(fundo,0,0)
     texto = "Pegue as Cores na tela. Você perde ao ter 10 Cores ao mesmo tempo."
     textoPont = "Pontuação: "
     freq = 150
 
+    --UI Region
     posicaoTexto = {0, platform.y}
-    --[[
-        Trabalho 6
-        Tupla 
-        Essa Tupla é usada para definir a posicao das tres linhas de texto do jogo (Pontuacao/Score, Cores in game e Velocidade). Caso eu queira mudar a posicao, mudarei de todas.
-    --]]
 
     fimDeJogo = 'NAO'
-    --[[
-        Trabalho 6
-        Enum 
-        Essa Enum diz se o jogo acabou ou não. Os valores possíveis são "SIM" e "NAO".
-    --]]
 
-    retCo = novoRetangulo() --Esse e o retangulo para a tarefa 8. Ele so aparece ao ter 300 pontos OU colocar novoRetangulo() no valor inicial dessa variável.
+    --Random Region
+    retCo = newRect()
 end
 
-function novoRetangulo()
+function newRect()
     local me
     me = {
         move = function (o, a, b)
@@ -83,11 +61,6 @@ function novoRetangulo()
              return me.x, me.y
         end,
         co = coroutine.create(function (dt)
-            --[[
-                Trabalho 8
-                Corrotina
-                A corrotina é criada aqui. Ela é resumida nas linhas 128-138 e no love.draw é desenhado na linha 236, tudo se baseando na variavel retCo.
-            --]]
             while true do
                 coroutine.yield(1, 0)
                 coroutine.yield(0, 1)
@@ -109,11 +82,6 @@ function novoRetangulo()
 end
 
 function createCore()
-    --[[
-        Trabalho 8
-        Closure
-        O retorno dessa funcao e uma funcao q retorna as caracteristicas da Core (o circulo do jogo). veja linhas 159 e 160.
-    --]]
     local x = math.random(0, love.graphics.getWidth() - 20)
     local y = math.random(250, 400)
     local raio = math.random(7,15)
@@ -144,33 +112,13 @@ function love.update(dt)
     tempo = tempo + 1
     if tempo >= freq then
         quantCirc = quantCirc + 1
-        if quantCirc == 10 then --Perdeu o Jogo
+        if quantCirc == 10 then --Lose Game
             fimDeJogo = 'SIM'
             texto = "Você deixou as Cores te dominarem. Aperte R para reniciar o jogo."
             freq = 1
-            --[[
-              Trabalho 5
-              Nome: variável 'freq'
-              Propriedade: valor
-              Binding time: Execução
-              Explicação: A variável 'freq' atribui esse valor quando o jogador perde o jogo.
-            --]]
         end
         coreTeste = createCore()
         table.insert(circulos,coreTeste())
-        --[[
-            Trabalho 6 (agora o codigo esta na funcao createCore())
-            {x = math.random(0, love.graphics.getWidth() - 20), y = math.random(250, 400), raio = math.random(7,15)}
-            Registro
-            Representa uma Core no jogo. Ele fica armazenado no Array circulos, onde é declarado lá em cima do código.  
-        --]]
-        --[[
-            Trabalho 7
-            Escopo: o objeto é inserido no Array 'circulos', que é global. Portanto, o objeto também é.
-            Tempo de vida: Até o Objeto Player colidir com o objeto que está no Array 'circulos'
-            Alocação: A cada x tempo, sendo x = freq.    freq é a dificuldade do jogo, onde diminui ao pegar Cores. (A alocação de fato ocorre na linha 89)
-            Desalocação: Quando a colisão entre o Player e o objeto é definido como True. (vide linha 143 e 144)
-        --]]
         tempo = 0
     end
    
@@ -209,7 +157,7 @@ function love.update(dt)
             end
         end
      
-        for index = #circulos, 1, -1 do  --COMO FOI PEDIDO NA TAREFA 7
+        for index = #circulos, 1, -1 do
             if collides (circulos[index]) then
                 table.remove(circulos,index)
 
@@ -240,13 +188,7 @@ function love.draw()
     love.graphics.draw(player.img, player.x, player.y, 0, 1, 1, 0, 32)
 
     love.graphics.setColor(fundo,0,0,255)
-    --[[
-      Trabalho 5
-      Nome: love.graphics.setColor(fundo,0,0,255)
-      Propriedade: Execução
-      Binding time: Execução
-      Explicação: Executa a função love.graphics.setColor com os parametros fundo, 0, 0, 255
-    --]]
+
     love.graphics.print(textoPont..pontuacao, posicaoTexto[1], posicaoTexto[2])
     if(fimDeJogo == 'NAO') then
         love.graphics.print("Cores em Jogo: "..quantCirc,posicaoTexto[1],posicaoTexto[2] + 30)
@@ -260,13 +202,6 @@ function love.draw()
     love.graphics.printf(texto, (love.graphics.getWidth() / 2) - 250, 30, 500, "center")
 
     for index,v in ipairs(circulos) do 
-        --[[
-        Trabalho 5
-        Nome: sintaxe 'for ... do'
-        Propriedade: sintaxe
-        Binding time: Design da linguagem
-        Explicação: no período de design da linguagem que é definido como  implementado o comando 'for'.
-        --]]
         love.graphics.setColor(math.random(50, 255),math.random(50, 255),math.random(50, 255),255)
         love.graphics.circle('fill', v.x, v.y, v.raio)  
         love.graphics.setColor(255,255,255,255)
@@ -275,26 +210,12 @@ function love.draw()
 end
 
 function collides (aaa)
-    --[[
-    Trabalho 5
-    Nome: declaração de função 'function ... end'
-    Propriedade: implementação
-    Binding time: Compilação
-    Explicação: Somente durante a compilação que é avaliado se a sintaxe usada na função é válida.
-    --]]
     return (player.x+32 >= aaa.x - aaa.raio) and (player.x <= aaa.x+aaa.raio) and
            (player.y+32 >= aaa.y - aaa.raio) and (player.y <= aaa.y+aaa.raio)
 end
 
 function verTexto(p)
     if(p>=3) then
-        --[[
-        Trabalho 5
-        Nome: sintaxe 'if ... then'
-        Propriedade: Sintaxe
-        Binding time: Design da linguagem
-        Explicação: no período de design da linguagem que é definido como implementado o comando 'if ... then'.
-        --]]
         texto = ""
     end
     if(p>=5) then
@@ -377,7 +298,7 @@ function verTexto(p)
     if(p>=300) then
         texto = "Olhe! É um retangulo que faz nada além de ficar se mexendo! Ele não faz nada além de ser belo."
         if (retCo == nil) then
-            retCo = novoRetangulo()
+            retCo = newRect()
         end
     end
     if(p>=330) then
